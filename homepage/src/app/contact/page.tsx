@@ -65,11 +65,11 @@ export default function ContactPage() {
           fill
           priority
           className="object-cover"
-          style={{ objectPosition: "center center", filter: "brightness(0.15)" }}
+          style={{ objectPosition: "center center", filter: "brightness(0.4)" }}
           sizes="100vw"
         />
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to right, rgba(4,13,28,0.92) 0%, rgba(4,13,28,0.88) 45%, rgba(4,13,28,0.78) 70%, rgba(4,13,28,0.68) 100%)"
+          background: "linear-gradient(to right, rgba(4,13,28,0.85) 0%, rgba(4,13,28,0.75) 45%, rgba(4,13,28,0.55) 70%, rgba(4,13,28,0.40) 100%)"
         }} />
         <div className="relative z-10 container-main py-8 sm:py-12">
           <p className="text-white/60 text-sm mb-2">문의하기</p>

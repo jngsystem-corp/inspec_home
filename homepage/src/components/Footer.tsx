@@ -5,18 +5,18 @@ import Image from "next/image";
 export default function Footer() {
   return (
     <footer className="text-white mt-auto relative overflow-hidden">
-      {/* 배경 이미지 (WebP 압축, brightness 0.13) */}
+      {/* 배경 이미지 (WebP 압축) — 이미지 실루엣이 살짝 보이도록 brightness 0.4 */}
       <Image
         src="/foot.webp"
         alt=""
         fill
         className="object-cover"
-        style={{ objectPosition: "center center", filter: "brightness(0.13)" }}
+        style={{ objectPosition: "center center", filter: "brightness(0.4)" }}
         sizes="100vw"
       />
-      {/* 네이비 오버레이 */}
+      {/* 네이비 오버레이 — 좌측은 짙게(텍스트 가독성), 우측은 투명(이미지 실루엣 보임) */}
       <div className="absolute inset-0" style={{
-        background: "linear-gradient(to right, rgba(4,13,28,0.92) 0%, rgba(4,13,28,0.88) 45%, rgba(4,13,28,0.78) 70%, rgba(4,13,28,0.68) 100%)"
+        background: "linear-gradient(to right, rgba(4,13,28,0.85) 0%, rgba(4,13,28,0.75) 45%, rgba(4,13,28,0.55) 70%, rgba(4,13,28,0.40) 100%)"
       }} />
       <div className="relative z-10 container-main py-8 sm:py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

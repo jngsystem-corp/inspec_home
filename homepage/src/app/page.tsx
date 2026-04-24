@@ -254,21 +254,21 @@ export default function HomePage() {
       />
       <BreadcrumbSchema items={[{ name: "홈", path: "/" }]} />
 
-      {/* ── 히어로 ── [옵션 1: Dark Overlay] */}
+      {/* ── 히어로 ── [Dark Overlay + 이미지 실루엣 가시] */}
       <section className="text-white relative overflow-hidden">
-        {/* 배경 이미지 (WebP, 최적화) — brightness로 이미지 자체를 어둡게 */}
+        {/* 배경 이미지 (WebP, 최적화) — brightness 0.4로 이미지 디테일이 살짝 드러나도록 */}
         <Image
           src="/HERO_GPT2.webp"
           alt="정보통신설비 IT 전문 기술자 서버실 현장"
           fill
           priority
           className="object-cover"
-          style={{ objectPosition: "60% center", filter: "brightness(0.15)" }}
+          style={{ objectPosition: "60% center", filter: "brightness(0.4)" }}
           sizes="100vw"
         />
-        {/* 진한 네이비 오버레이 + 오른쪽으로 갈수록 약간 투명 → 실루엣만 보이는 효과 */}
+        {/* 네이비 오버레이 — 좌측은 텍스트 가독성을 위해 짙게, 우측은 이미지 실루엣이 보이도록 */}
         <div className="absolute inset-0" style={{
-          background: "linear-gradient(to right, rgba(4,13,28,0.92) 0%, rgba(4,13,28,0.88) 45%, rgba(4,13,28,0.78) 70%, rgba(4,13,28,0.68) 100%)"
+          background: "linear-gradient(to right, rgba(4,13,28,0.85) 0%, rgba(4,13,28,0.75) 45%, rgba(4,13,28,0.55) 70%, rgba(4,13,28,0.40) 100%)"
         }} />
         <div className="relative z-10 container-main py-10 sm:py-20">
           <div className="inline-flex items-center gap-2 bg-[var(--color-warning)] text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 rounded-full mb-6">
