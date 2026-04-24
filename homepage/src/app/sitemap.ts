@@ -56,10 +56,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
-      url: `${baseUrl}/estimate`,
+      url: `${baseUrl}/privacy`,
       lastModified: now,
-      changeFrequency: "monthly",
-      priority: 0.7,
+      changeFrequency: "yearly",
+      priority: 0.3,
     },
   ];
 }
