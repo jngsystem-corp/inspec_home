@@ -58,13 +58,21 @@
   }
 
   @media (max-width: 768px) {
+    .container-main {
+      padding-left: 16px;
+      padding-right: 16px;
+    }
     .section-padding {
-      padding-top: 64px;
-      padding-bottom: 64px;
+      padding-top: 48px;
+      padding-bottom: 48px;
     }
     .section-padding-sm {
-      padding-top: 40px;
-      padding-bottom: 40px;
+      padding-top: 32px;
+      padding-bottom: 32px;
+    }
+    .answer-block {
+      padding: 16px 20px;
+      margin-bottom: 40px;
     }
   }
 

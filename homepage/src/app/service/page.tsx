@@ -173,7 +173,7 @@ export default function ServicePage() {
         <div className="absolute inset-0" style={{
           background: "linear-gradient(to right, rgba(4,13,28,0.92) 0%, rgba(4,13,28,0.88) 45%, rgba(4,13,28,0.78) 70%, rgba(4,13,28,0.68) 100%)"
         }} />
-        <div className="relative z-10 container-main py-12">
+        <div className="relative z-10 container-main py-8 sm:py-12">
           <p className="text-white/60 text-sm mb-2">서비스 소개</p>
           <h1 className="text-white text-3xl sm:text-4xl font-bold mb-4">정보통신설비 성능점검 대행 & 유지보수관리 위탁</h1>
           <p className="text-white/80 max-w-2xl leading-relaxed">
@@ -223,8 +223,8 @@ export default function ServicePage() {
           <div className="space-y-6">
             {services.map(({ icon: Icon, title, subtitle, color, summary, points, highlight }) => (
               <div key={title} className="bg-white rounded-2xl border border-[var(--color-border)] card-shadow overflow-hidden">
-                <div className="p-6 sm:p-8">
-                  <div className="flex items-start gap-5">
+                <div className="p-5 sm:p-8">
+                  <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
                     <div className="w-14 h-14 rounded-xl flex items-center justify-center shrink-0" style={{ background: color + "15" }}>
                       <Icon size={28} style={{ color }} />
                     </div>

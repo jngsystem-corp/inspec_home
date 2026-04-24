@@ -6,6 +6,7 @@ import {
   Building2, Award, Server, Network,
   Monitor, Shield, Wrench, BarChart3, Clock, ChevronRight
 } from "lucide-react";
+import Image from "next/image";
 import PageLayout from "@/components/PageLayout";
 import Countdown from "@/components/Countdown";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
@@ -141,11 +142,25 @@ export default function HomePage() {
       />
       <BreadcrumbSchema items={[{ name: "홈", path: "/" }]} />
 
-      {/* ── 히어로 ── */}
-      <section className="text-white" style={{ background: "linear-gradient(rgba(59,130,246,0.09) 1px, transparent 1px) 0 0 / 48px 48px, linear-gradient(90deg, rgba(59,130,246,0.09) 1px, transparent 1px) 0 0 / 48px 48px, linear-gradient(160deg, #040D1C 0%, #0A1F3D 42%, #0C2450 100%)" }}>
-        <div className="container-main py-16 sm:py-20">
-          <div className="inline-flex items-center gap-2 bg-[var(--color-warning)] text-white text-sm font-bold px-4 py-1.5 rounded-full mb-6">
-            <AlertTriangle size={14} />
+      {/* ── 히어로 ── [옵션 1: Dark Overlay] */}
+      <section className="text-white relative overflow-hidden">
+        {/* 배경 이미지 (WebP, 최적화) — brightness로 이미지 자체를 어둡게 */}
+        <Image
+          src="/HERO_GPT2.webp"
+          alt="정보통신설비 IT 전문 기술자 서버실 현장"
+          fill
+          priority
+          className="object-cover"
+          style={{ objectPosition: "60% center", filter: "brightness(0.15)" }}
+          sizes="100vw"
+        />
+        {/* 진한 네이비 오버레이 + 오른쪽으로 갈수록 약간 투명 → 실루엣만 보이는 효과 */}
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(to right, rgba(4,13,28,0.92) 0%, rgba(4,13,28,0.88) 45%, rgba(4,13,28,0.78) 70%, rgba(4,13,28,0.68) 100%)"
+        }} />
+        <div className="relative z-10 container-main py-10 sm:py-20">
+          <div className="inline-flex items-center gap-2 bg-[var(--color-warning)] text-white text-xs sm:text-sm font-bold px-3 sm:px-4 py-1.5 rounded-full mb-6">
+            <AlertTriangle size={14} className="shrink-0" />
             2026.7.18 마감 임박 — 연면적 1만~3만㎡ 건축물
           </div>
 
@@ -368,7 +383,7 @@ export default function HomePage() {
             <AlertTriangle size={18} style={{ color: "var(--color-warning)" }} className="shrink-0 mt-0.5" />
             <p className="text-sm" style={{ color: "var(--color-gray-700)" }}>
               <strong style={{ color: "var(--color-warning)" }}>🚨 연면적 3만㎡ 이상 대형 건축물:</strong>{" "}
-              2025년 7월 제도 시행 후 <strong>2026년 7월 18일까지 최초 성능점검 완료</strong>가 의무입니다. 약 3개월 남았습니다.
+              2025년 7월 제도 시행 후 <strong>2026년 7월 18일까지 최초 성능점검 완료</strong>가 의무입니다.
             </p>
           </div>
           <p className="mt-3 text-xs" style={{ color: "var(--color-gray-600)" }}>
@@ -411,7 +426,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            <div className="rounded-2xl p-8" style={{ background: "linear-gradient(135deg, #0D2B5E 0%, #1A4A8A 100%)" }}>
+            <div className="rounded-2xl p-5 sm:p-8" style={{ background: "linear-gradient(135deg, #0D2B5E 0%, #1A4A8A 100%)" }}>
               <h3 className="text-xl font-bold text-white mb-3">지금 바로 상담받으세요</h3>
               <p className="text-white/80 text-sm mb-6 leading-relaxed">
                 건물 규모와 현재 설비 현황을 알려주시면<br />전문가가 맞춤 이행 방안을 안내합니다.

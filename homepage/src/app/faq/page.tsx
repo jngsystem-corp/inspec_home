@@ -79,7 +79,7 @@ export default function FaqPage() {
         <div className="absolute inset-0" style={{
           background: "linear-gradient(to right, rgba(4,13,28,0.92) 0%, rgba(4,13,28,0.88) 45%, rgba(4,13,28,0.78) 70%, rgba(4,13,28,0.68) 100%)"
         }} />
-        <div className="relative z-10 container-main py-12">
+        <div className="relative z-10 container-main py-8 sm:py-12">
           <p className="text-white/60 text-sm mb-2">자주 묻는 질문</p>
           <h1 className="text-white text-3xl sm:text-4xl font-bold mb-4">정보통신설비 성능점검·유지보수 자주 묻는 질문</h1>
           <p className="text-white/80 max-w-2xl leading-relaxed">
