@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import { CheckCircle2, XCircle, AlertTriangle, ArrowRight, HelpCircle } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
 import BreadcrumbSchema from "@/components/BreadcrumbSchema";
@@ -85,8 +86,20 @@ export default function TargetPage() {
       />
       <BreadcrumbSchema items={[{ name: "홈", path: "/" }, { name: "대상건축물 확인", path: "/target" }]} />
       {/* 페이지 헤더 */}
-      <section style={{ background: "linear-gradient(rgba(59,130,246,0.09) 1px, transparent 1px) 0 0 / 48px 48px, linear-gradient(90deg, rgba(59,130,246,0.09) 1px, transparent 1px) 0 0 / 48px 48px, linear-gradient(160deg, #040D1C 0%, #0A1F3D 42%, #0C2450 100%)" }}>
-        <div className="container-main py-12">
+      <section className="relative overflow-hidden">
+        <Image
+          src="/hero-target.webp"
+          alt="대상건축물 확인 — 연면적 5천㎡ 이상 건축물"
+          fill
+          priority
+          className="object-cover"
+          style={{ objectPosition: "center center", filter: "brightness(0.15)" }}
+          sizes="100vw"
+        />
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(to right, rgba(4,13,28,0.92) 0%, rgba(4,13,28,0.88) 45%, rgba(4,13,28,0.78) 70%, rgba(4,13,28,0.68) 100%)"
+        }} />
+        <div className="relative z-10 container-main py-12">
           <p className="text-white/60 text-sm mb-2">대상건축물 확인</p>
           <h1 className="text-white text-3xl sm:text-4xl font-bold mb-4">우리 건물, 점검 의무 대상인가요?</h1>
           <p className="text-white/80 max-w-xl leading-relaxed">
@@ -212,8 +225,7 @@ export default function TargetPage() {
               </p>
               <p className="text-sm" style={{ color: "var(--color-gray-600)" }}>
                 2025년 7월부터 제도가 시행된 연면적 3만㎡ 이상 건축물은 <strong>법령상 매년 1회 이상 성능점검</strong> 의무에 따라
-                <strong> 2026년 7월 18일까지 최초 성능점검을 완료</strong>해야 합니다.
-                현재 4월이므로 약 3개월 남은 시점입니다. 지금 바로 일정을 잡으세요.
+                <strong> 2026년 7월 18일까지 최초 성능점검을 완료</strong>해야 합니다. 지금 바로 일정을 잡으세요.
               </p>
             </div>
           </div>

@@ -5,7 +5,7 @@ import Image from "next/image";
 export default function Footer() {
   return (
     <footer className="text-white mt-auto relative overflow-hidden">
-      {/* 배경 이미지 (WebP 압축, brightness 0.15) */}
+      {/* 배경 이미지 (WebP 압축, brightness 0.13) */}
       <Image
         src="/foot.webp"
         alt=""

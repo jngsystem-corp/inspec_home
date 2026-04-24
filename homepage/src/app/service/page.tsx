@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ClipboardList, ShieldCheck, UserCheck, CheckCircle2,
   ArrowRight, Server, Network, Shield, Monitor,
@@ -159,8 +160,20 @@ export default function ServicePage() {
       <BreadcrumbSchema items={[{ name: "홈", path: "/" }, { name: "서비스 소개", path: "/service" }]} />
 
       {/* 헤더 */}
-      <section style={{ background: "linear-gradient(rgba(59,130,246,0.09) 1px, transparent 1px) 0 0 / 48px 48px, linear-gradient(90deg, rgba(59,130,246,0.09) 1px, transparent 1px) 0 0 / 48px 48px, linear-gradient(160deg, #040D1C 0%, #0A1F3D 42%, #0C2450 100%)" }}>
-        <div className="container-main py-12">
+      <section className="relative overflow-hidden">
+        <Image
+          src="/hero-service.webp"
+          alt="정보통신설비 유지보수 서비스 현장"
+          fill
+          priority
+          className="object-cover"
+          style={{ objectPosition: "center center", filter: "brightness(0.15)" }}
+          sizes="100vw"
+        />
+        <div className="absolute inset-0" style={{
+          background: "linear-gradient(to right, rgba(4,13,28,0.92) 0%, rgba(4,13,28,0.88) 45%, rgba(4,13,28,0.78) 70%, rgba(4,13,28,0.68) 100%)"
+        }} />
+        <div className="relative z-10 container-main py-12">
           <p className="text-white/60 text-sm mb-2">서비스 소개</p>
           <h1 className="text-white text-3xl sm:text-4xl font-bold mb-4">정보통신설비 성능점검 대행 & 유지보수관리 위탁</h1>
           <p className="text-white/80 max-w-2xl leading-relaxed">
@@ -291,7 +304,7 @@ export default function ServicePage() {
             직접 선임 vs 공사업자 위탁 — 무엇이 유리한가?
           </h2>
           <p className="mb-6 text-sm" style={{ color: "var(--color-gray-600)" }}>
-            정보통신설비유지보수 관리는 직접 기술자를 선임하거나, 공사업자에게 위탁하는 방법이 있습니다.
+            정보통신설비 유지보수·관리는 직접 기술자를 선임하거나, 공사업자에게 위탁하는 방법이 있습니다.
             위탁 시 선임 간주 처리로 별도 채용 없이 법적 의무를 이행할 수 있습니다.
           </p>
           <div className="overflow-x-auto mb-6">
@@ -308,7 +321,7 @@ export default function ServicePage() {
                   { item: "선임 의무", direct: "기술계 기술자 직접 채용 또는 지정", outsource: "위탁계약 체결만으로 선임 간주 처리" },
                   { item: "비용 구조", direct: "기술자 인건비 전액 (상시 고용 또는 겸직)", outsource: "연간 위탁 계약비용 (규모별 협의)" },
                   { item: "법적 리스크", direct: "내부 관리 소홀 시 과태료 직접 부담", outsource: "업체가 점검 기준 준수 책임" },
-                  { item: "인정교육 이수", direct: "선임자 직접 관리 (취임 후 1년 내 20시간)", outsource: "업체 소속 기술자가 이수·관리" },
+                  { item: "인정교육 이수", direct: "선임 전 20시간 이상 이수 필수 (이수 후 선임 가능)", outsource: "업체 소속 기술자가 이수·관리" },
                   { item: "추천 대상", direct: "자체 IT 인력이 충분한 대규모 시설", outsource: "전문 인력 확보가 어려운 일반 건축물" },
                 ].map(({ item, direct, outsource }) => (
                   <tr key={item} className="hover:bg-[var(--color-bg)]">
@@ -325,7 +338,7 @@ export default function ServicePage() {
             유지보수 관리자 선임 자격, 어떤 기준인가요?
           </h2>
           <p className="mb-5 text-sm" style={{ color: "var(--color-gray-600)" }}>
-            정보통신공사업법 시행령 제37조의2에 따라 건축물 규모별로 선임 기술자 등급이 다릅니다.
+            정보통신공사업법 시행령 제37조의4에 따라 건축물 규모별로 선임 기술자 등급이 다릅니다.
             공사업자에게 위탁 시, 해당 등급 기술자를 보유한 업체와 계약하면 선임 간주 요건을 충족합니다.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
@@ -344,7 +357,7 @@ export default function ServicePage() {
           </div>
           <div className="rounded-xl p-4" style={{ background: "var(--color-accent-light)", border: "1px solid var(--color-accent)" }}>
             <p className="text-xs leading-relaxed" style={{ color: "var(--color-primary)" }}>
-              ※ 근거: 정보통신공사업법 시행령 제37조의2. 공사업자 위탁 시 해당 등급 기술자를 보유한 업체와 계약하면 선임 간주 요건이 충족됩니다.
+              ※ 근거: 정보통신공사업법 시행령 제37조의4. 공사업자 위탁 시 해당 등급 기술자를 보유한 업체와 계약하면 선임 간주 요건이 충족됩니다.
               <Link href="/law" className="ml-2 underline font-bold" style={{ color: "var(--color-accent)" }}>법령 안내 보기 →</Link>
             </p>
           </div>

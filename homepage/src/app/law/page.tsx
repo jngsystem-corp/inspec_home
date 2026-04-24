@@ -75,7 +75,7 @@ const laws = [
   { name: "정보통신공사업법 제37조의3", desc: "성능점검 의무 — 매년 1회 이상, 성능점검표 5년 보존, 지자체 제출" },
   { name: "정보통신공사업법 제37조의4", desc: "과태료 부과 기준 (최대 300만원)" },
   { name: "정보통신공사업법 시행령 제37조의2", desc: "대상 건축물 범위, 연면적 기준" },
-  { name: "정보통신공사업법 시행령 제37조의3", desc: "관리자 선임 자격 기준 (연면적 규모별 기술자 등급)" },
+  { name: "정보통신공사업법 시행령 제37조의4", desc: "관리자 선임 자격 기준 (연면적 규모별 기술자 등급)" },
   { name: "정보통신공사업법 시행규칙 제8조~제11조", desc: "성능점검 대행자 요건, 점검 절차, 점검표 양식" },
   { name: "정보통신설비 유지보수·관리기준 (고시)", desc: "구체적 점검 항목, 방법, 기준 — 과기정통부 고시" },
 ];
@@ -391,7 +391,7 @@ export default function LawPage() {
             정보통신설비 유지보수 관리자 선임 자격 기준
           </h2>
           <p className="mb-5 text-sm" style={{ color: "var(--color-gray-600)" }}>
-            정보통신공사업법 시행령 제37조의2에 따라 건축물 규모별로 선임해야 하는 기술자 등급이 다릅니다.
+            정보통신공사업법 시행령 제37조의4에 따라 건축물 규모별로 선임해야 하는 기술자 등급이 다릅니다.
             공사업자에게 위탁하면 해당 기준을 갖춘 기술자를 보유한 업체가 선임 간주를 처리합니다.
           </p>
           <div className="overflow-x-auto mb-6">
@@ -419,7 +419,7 @@ export default function LawPage() {
               <h3 className="text-sm font-bold mb-3" style={{ color: "var(--color-primary)" }}>직접 선임 시 유의사항</h3>
               <ul className="space-y-2 text-sm" style={{ color: "var(--color-gray-600)" }}>
                 <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[var(--color-accent)]" />건축물 규모에 맞는 등급의 기술자 선임 필수</li>
-                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[var(--color-accent)]" /><strong>선임 전</strong> 20시간 이상의 인정교육 이수 필수 (이수 후 선임 가능)</li>
+                <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[var(--color-accent)]" />선임 전 20시간 이상의 인정교육 이수 필수 (이수 후 선임 가능)</li>
                 <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[var(--color-accent)]" />지자체에 선임 신고 서류 제출</li>
                 <li className="flex items-start gap-2"><span className="w-1.5 h-1.5 rounded-full mt-2 shrink-0 bg-[var(--color-accent)]" />관리자 변경 시 즉시 재신고</li>
               </ul>
@@ -535,7 +535,7 @@ export default function LawPage() {
               </p>
               <p className="text-sm" style={{ color: "var(--color-gray-600)" }}>
                 2025년 7월 18일부터 제도가 시행된 3만㎡ 이상 건축물은 <strong>법령상 &apos;매년 1회 이상&apos; 성능점검</strong> 의무에 따라
-                <strong> 2026년 7월 18일까지 최초 성능점검을 완료</strong>해야 합니다. 현재 2026년 4월이므로 약 3개월밖에 남지 않았습니다.
+                <strong> 2026년 7월 18일까지 최초 성능점검을 완료</strong>해야 합니다.
                 점검 일정 확보가 늦어질수록 성수기 대기 시간이 길어질 수 있으니 지금 바로 상담하세요.
               </p>
             </div>
