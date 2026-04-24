@@ -11,7 +11,7 @@ export default function Footer() {
         alt=""
         fill
         className="object-cover"
-        style={{ objectPosition: "center center", filter: "brightness(0.1)" }}
+        style={{ objectPosition: "center center", filter: "brightness(0.13)" }}
         sizes="100vw"
       />
       {/* 네이비 오버레이 */}
