@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { Menu, X, Phone } from "lucide-react";
+import { Menu, X, Phone, MessageCircle } from "lucide-react";
 import Image from "next/image";
 
 const navItems = [
@@ -81,6 +81,13 @@ export default function Header() {
               className="hidden sm:inline-flex items-center px-4 py-2 bg-[var(--color-accent)] text-white text-sm font-bold rounded-lg hover:bg-[var(--color-primary-mid)] transition-colors"
             >
               무료 상담 신청
+            </Link>
+            <Link
+              href="/contact"
+              className="sm:hidden inline-flex items-center gap-1 px-3 py-1.5 bg-[var(--color-accent)] text-white text-xs font-bold rounded-lg hover:bg-[var(--color-primary-mid)] transition-colors"
+            >
+              <MessageCircle size={13} />
+              상담
             </Link>
             <button
               onClick={() => setMobileOpen(!mobileOpen)}
