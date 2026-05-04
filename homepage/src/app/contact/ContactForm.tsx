@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Send, CheckCircle2, Search, MessageSquare, FileText } from "lucide-react";
+import { Send, CheckCircle2, Search, MessageSquare, FileText, HelpCircle } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { EQUIPMENT_DETAILS } from "@/data/equipment-details";
 import Script from "next/script";
 
 /* ─────────────────────────────────────────────── */
@@ -409,6 +410,7 @@ function DetailContactForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading,   setLoading]   = useState(false);
   const [error,     setError]     = useState("");
+  const [openEquipmentInfo, setOpenEquipmentInfo] = useState<string | null>(null);
   const [form,      setForm]      = useState<DetailForm>({
     name: "", phone: "", email: "",
     buildingName: "", buildingAddress: "", buildingArea: "",
@@ -764,26 +766,58 @@ function DetailContactForm() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
                   {group.items.map((item) => {
                     const checked = form.equipment.includes(item);
+                    const detail = EQUIPMENT_DETAILS[item];
+                    const isOpen = openEquipmentInfo === item;
                     return (
-                      <label
-                        key={item}
-                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg cursor-pointer text-sm transition-colors"
-                        style={{
-                          background: checked ? `${group.color}10` : "transparent",
-                          border: `1px solid ${checked ? group.color + "40" : "transparent"}`,
-                          color: checked ? group.color : "var(--color-gray-600)",
-                          fontWeight: checked ? 600 : 400,
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={checked}
-                          onChange={() => toggleEquipment(item)}
-                          className="w-4 h-4 rounded"
-                          style={{ accentColor: group.color }}
-                        />
-                        {item}
-                      </label>
+                      <div key={item} className="flex flex-col">
+                        <div
+                          className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors"
+                          style={{
+                            background: checked ? `${group.color}10` : "transparent",
+                            border: `1px solid ${checked ? group.color + "40" : "transparent"}`,
+                            color: checked ? group.color : "var(--color-gray-600)",
+                            fontWeight: checked ? 600 : 400,
+                          }}
+                        >
+                          <label className="flex flex-1 items-center gap-2.5 cursor-pointer min-w-0">
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleEquipment(item)}
+                              className="w-4 h-4 rounded shrink-0"
+                              style={{ accentColor: group.color }}
+                            />
+                            <span className="leading-snug">{item}</span>
+                          </label>
+                          {detail && (
+                            <button
+                              type="button"
+                              title={`${item} 설비의 종류 보기`}
+                              onClick={() => setOpenEquipmentInfo(isOpen ? null : item)}
+                              className="shrink-0 flex items-center justify-center w-6 h-6 rounded-full transition-colors"
+                              style={{
+                                color: isOpen ? "white" : group.color,
+                                background: isOpen ? group.color : `${group.color}18`,
+                              }}
+                            >
+                              <HelpCircle size={14} />
+                            </button>
+                          )}
+                        </div>
+                        {detail && isOpen && (
+                          <div
+                            className="mt-1 px-3 py-2 text-xs leading-relaxed rounded-lg"
+                            style={{
+                              background: "var(--color-bg)",
+                              borderLeft: `3px solid ${group.color}`,
+                              color: "var(--color-gray-600)",
+                            }}
+                          >
+                            <span className="font-semibold" style={{ color: group.color }}>설비의 종류: </span>
+                            {detail}
+                          </div>
+                        )}
+                      </div>
                     );
                   })}
                 </div>
