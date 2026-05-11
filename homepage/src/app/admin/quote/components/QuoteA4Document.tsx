@@ -89,7 +89,7 @@ export default function QuoteA4Document({ input, output }: Props) {
                 <tr><td className={styles.label}>상호명</td><td>(주)제이앤지시스템</td></tr>
                 <tr><td className={styles.label}>대표자</td><td>박장훈</td></tr>
                 <tr><td className={styles.label}>사업자번호</td><td>211-88-14679</td></tr>
-                <tr><td className={styles.label}>소재지</td><td>서울특별시 영등포구 경인로 775</td></tr>
+                <tr><td className={styles.label}>소재지</td><td>서울 성동구 아차산로 103 2101호 (영동테크노타워)</td></tr>
                 <tr><td className={styles.label}>대표전화</td><td>02-3444-3570</td></tr>
                 <tr><td className={styles.label}>영업담당</td><td>{input.salesName}</td></tr>
                 <tr><td className={styles.label}>연락처</td><td>{input.salesPhone}</td></tr>
