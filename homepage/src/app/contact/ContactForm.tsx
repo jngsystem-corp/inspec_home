@@ -100,6 +100,10 @@ const RATE_LIMIT_MS      = 60_000; // 1분
 const RATE_LIMIT_BASIC   = "last_submit_time";
 const RATE_LIMIT_DETAIL  = "last_submit_time_detail";
 
+type Web3FormsResponse = {
+  success?: boolean;
+};
+
 /* 공통 유틸: 카카오 주소 검색 */
 function openAddressSearch(onComplete: (full: string) => void) {
   if (typeof window !== "undefined" && window.daum) {
@@ -203,10 +207,13 @@ function BasicContactForm() {
         "문의 내용":    form.message || "없음",
       };
 
+      let savedToCrm = false;
+      let sentByEmail = false;
+
       /* 1. Supabase CRM 저장 (환경변수 미설정 시 건너뜀) */
       if (supabase) {
         try {
-          await supabase.from("inquiries").insert([{
+          const { error: crmError } = await supabase.from("inquiries").insert([{
             name:         form.name,
             phone:        form.phone,
             company:      form.company,
@@ -214,24 +221,30 @@ function BasicContactForm() {
             details:      JSON.stringify(payload),
             status:       "신규 문의",
           }]);
+          savedToCrm = !crmError;
         } catch {
-          /* Supabase 실패해도 이메일 발송은 계속 진행 */
+          savedToCrm = false;
         }
       }
 
       /* 2. Web3Forms 이메일 발송 */
-      const res  = await fetch("https://api.web3forms.com/submit", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body:    JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
-      });
-      const data = await res.json();
+      try {
+        const res  = await fetch("https://api.web3forms.com/submit", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body:    JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
+        });
+        const data = (await res.json()) as Web3FormsResponse;
+        sentByEmail = data.success === true;
+      } catch {
+        sentByEmail = false;
+      }
 
-      if (data.success) {
+      if (savedToCrm || sentByEmail) {
         localStorage.setItem(RATE_LIMIT_BASIC, Date.now().toString());
         setSubmitted(true);
       } else {
-        setError("전송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        setError("접수에 실패했습니다. 잠시 후 다시 시도하시거나 02-3444-3570으로 연락해 주세요.");
       }
     } catch {
       setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
@@ -484,10 +497,13 @@ function DetailContactForm() {
         "문의 내용":         form.message || "없음",
       };
 
+      let savedToCrm = false;
+      let sentByEmail = false;
+
       /* 1. Supabase CRM 저장 */
       if (supabase) {
         try {
-          await supabase.from("inquiries").insert([{
+          const { error: crmError } = await supabase.from("inquiries").insert([{
             name:         form.name,
             phone:        form.phone,
             company:      form.buildingName,
@@ -495,24 +511,30 @@ function DetailContactForm() {
             details:      JSON.stringify(payload),
             status:       "신규 문의",
           }]);
+          savedToCrm = !crmError;
         } catch {
-          /* Supabase 실패해도 이메일 발송은 계속 진행 */
+          savedToCrm = false;
         }
       }
 
       /* 2. Web3Forms 이메일 발송 */
-      const res  = await fetch("https://api.web3forms.com/submit", {
-        method:  "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body:    JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
-      });
-      const data = await res.json();
+      try {
+        const res  = await fetch("https://api.web3forms.com/submit", {
+          method:  "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body:    JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
+        });
+        const data = (await res.json()) as Web3FormsResponse;
+        sentByEmail = data.success === true;
+      } catch {
+        sentByEmail = false;
+      }
 
-      if (data.success) {
+      if (savedToCrm || sentByEmail) {
         localStorage.setItem(RATE_LIMIT_DETAIL, Date.now().toString());
         setSubmitted(true);
       } else {
-        setError("전송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        setError("접수에 실패했습니다. 잠시 후 다시 시도하시거나 02-3444-3570으로 연락해 주세요.");
       }
     } catch {
       setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");

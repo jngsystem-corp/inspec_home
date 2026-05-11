@@ -5,6 +5,7 @@ import {
   Calculator, ChevronRight, Printer, Send,
   AlertCircle, CheckCircle2, Building2,
 } from "lucide-react";
+import { supabase } from "@/lib/supabase";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    상수 · 데이터
@@ -162,6 +163,10 @@ function fmt(n: number): string { return n.toLocaleString("ko-KR"); }
 // 견적 신청 전용 이메일 수신을 원하시면 web3forms.com에서 sales@jngsystem.co.kr로 키를 재발급 받으세요.
 const WEB3FORMS_KEY = "08ac26e2-da08-4bbd-8871-ca08b59572f0";
 
+type Web3FormsResponse = {
+  success?: boolean;
+};
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    메인 컴포넌트
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -201,38 +206,64 @@ export default function EstimateForm() {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch("https://api.web3forms.com/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
-        body: JSON.stringify({
-          access_key: WEB3FORMS_KEY,
-          subject: `[견적신청] ${buildingName || "건물명미입력"} / ${fmt(area)}㎡ / 예상 ${fmt(quote.total)}원`,
-          from_name: "제이앤지시스템 홈페이지",
-          "신청유형": "자동 견적 계산 신청",
-          "■ 건물명": buildingName || "미입력",
-          "■ 소재지": buildingAddress || "미입력",
-          "■ 연면적": `${fmt(area)}㎡`,
-          "■ 선임기준": `${quote.grade}기술자 / 조정계수 ${quote.factor} / 단가 ${fmt(quote.rate)}원`,
-          "■ 기준인원 합계": `${quote.totalPers}인 (${equipment.length}개 설비)`,
-          "■ 회사명": companyName || "미입력",
-          "■ 담당자명": contactName,
-          "■ 연락처": phone,
-          "■ 이메일(견적발송)": email,
-          "━ 견적 내역 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━": "─",
-          "① 직접인건비": `${fmt(quote.labor)}원`,
-          "② 직접경비": "해당없음 (0원)",
-          "③ 제경비 (110%)": `${fmt(quote.overhead)}원`,
-          "④ 기술료 (20%)": `${fmt(quote.tech)}원`,
-          "⑤ 부가가치세 (10%)": `${fmt(quote.vat)}원`,
-          "【합계 VAT포함·만원절사】": `${fmt(quote.total)}원`,
-          "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━": "─",
-          "▶ 선택 설비 목록": equipment.join(", ") || "미선택",
-          "▶ 문의사항": message || "없음",
-        }),
-      });
-      const data = await res.json();
-      if (data.success) setSubmitted(true);
-      else setError("전송에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+      const payload = {
+        subject: `[견적신청] ${buildingName || "건물명미입력"} / ${fmt(area)}㎡ / 예상 ${fmt(quote.total)}원`,
+        from_name: "제이앤지시스템 홈페이지",
+        "신청유형": "자동 견적 계산 신청",
+        "■ 건물명": buildingName || "미입력",
+        "■ 소재지": buildingAddress || "미입력",
+        "■ 연면적": `${fmt(area)}㎡`,
+        "■ 선임기준": `${quote.grade}기술자 / 조정계수 ${quote.factor} / 단가 ${fmt(quote.rate)}원`,
+        "■ 기준인원 합계": `${quote.totalPers}인 (${equipment.length}개 설비)`,
+        "■ 회사명": companyName || "미입력",
+        "■ 담당자명": contactName,
+        "■ 연락처": phone,
+        "■ 이메일(견적발송)": email,
+        "━ 견적 내역 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━": "─",
+        "① 직접인건비": `${fmt(quote.labor)}원`,
+        "② 직접경비": "해당없음 (0원)",
+        "③ 제경비 (110%)": `${fmt(quote.overhead)}원`,
+        "④ 기술료 (20%)": `${fmt(quote.tech)}원`,
+        "⑤ 부가가치세 (10%)": `${fmt(quote.vat)}원`,
+        "【합계 VAT포함·만원절사】": `${fmt(quote.total)}원`,
+        "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━": "─",
+        "▶ 선택 설비 목록": equipment.join(", ") || "미선택",
+        "▶ 문의사항": message || "없음",
+      };
+
+      let savedToCrm = false;
+      let sentByEmail = false;
+
+      if (supabase) {
+        try {
+          const { error: crmError } = await supabase.from("inquiries").insert([{
+            name: contactName,
+            phone,
+            company: buildingName || companyName,
+            inquiry_type: "자동 견적 계산 신청",
+            details: JSON.stringify(payload),
+            status: "신규 문의",
+          }]);
+          savedToCrm = !crmError;
+        } catch {
+          savedToCrm = false;
+        }
+      }
+
+      try {
+        const res = await fetch("https://api.web3forms.com/submit", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          body: JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
+        });
+        const data = (await res.json()) as Web3FormsResponse;
+        sentByEmail = data.success === true;
+      } catch {
+        sentByEmail = false;
+      }
+
+      if (savedToCrm || sentByEmail) setSubmitted(true);
+      else setError("접수에 실패했습니다. 잠시 후 다시 시도하시거나 02-3444-3570으로 연락해 주세요.");
     } catch {
       setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {
