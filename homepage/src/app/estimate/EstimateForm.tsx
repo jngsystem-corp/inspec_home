@@ -5,7 +5,6 @@ import {
   Calculator, ChevronRight, Printer, Send,
   AlertCircle, CheckCircle2, Building2,
 } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    상수 · 데이터
@@ -167,6 +166,26 @@ type Web3FormsResponse = {
   success?: boolean;
 };
 
+type InquiryApiResponse = {
+  success?: boolean;
+  emailSent?: boolean;
+  error?: string;
+};
+
+async function sendEstimateEmailFallback(payload: Record<string, unknown>): Promise<boolean> {
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
+    });
+    const data = (await res.json()) as Web3FormsResponse;
+    return res.ok && data.success === true;
+  } catch {
+    return false;
+  }
+}
+
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    메인 컴포넌트
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
@@ -231,39 +250,34 @@ export default function EstimateForm() {
         "▶ 문의사항": message || "없음",
       };
 
-      let savedToCrm = false;
-      let sentByEmail = false;
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          inquiryType: "quote_auto",
+          customerName: contactName,
+          customerPhone: phone,
+          customerEmail: email,
+          companyName,
+          buildingName,
+          buildingAddress,
+          buildingAreaM2: buildingArea,
+          equipmentList: equipment,
+          estimatedAmount: quote.total,
+          message,
+          sourcePage: "/estimate",
+        }),
+      });
+      const data = (await response.json()) as InquiryApiResponse;
 
-      if (supabase) {
-        try {
-          const { error: crmError } = await supabase.from("inquiries").insert([{
-            name: contactName,
-            phone,
-            company: buildingName || companyName,
-            inquiry_type: "자동 견적 계산 신청",
-            details: JSON.stringify(payload),
-            status: "신규 문의",
-          }]);
-          savedToCrm = !crmError;
-        } catch {
-          savedToCrm = false;
+      if (response.ok && data.success) {
+        if (data.emailSent !== true) {
+          await sendEstimateEmailFallback(payload);
         }
+        setSubmitted(true);
+      } else {
+        setError(data.error || "접수에 실패했습니다. 잠시 후 다시 시도하시거나 02-3444-3570으로 연락해 주세요.");
       }
-
-      try {
-        const res = await fetch("https://api.web3forms.com/submit", {
-          method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body: JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
-        });
-        const data = (await res.json()) as Web3FormsResponse;
-        sentByEmail = data.success === true;
-      } catch {
-        sentByEmail = false;
-      }
-
-      if (savedToCrm || sentByEmail) setSubmitted(true);
-      else setError("접수에 실패했습니다. 잠시 후 다시 시도하시거나 02-3444-3570으로 연락해 주세요.");
     } catch {
       setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
     } finally {

@@ -3,6 +3,8 @@ type Env = {
   NEXT_PUBLIC_SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SUPABASE_SERVICE_ROL_KEY?: string;
+  SUPABASE_ANON_KEY?: string;
+  NEXT_PUBLIC_SUPABASE_ANON_KEY?: string;
   WEB3FORMS_ACCESS_KEY?: string;
   WEB3_FORMS_ACCESS_KEY?: string;
 };
@@ -55,7 +57,12 @@ const INQUIRY_TYPE_LABEL: Record<InquiryTypeCode, string> = {
 };
 
 function getSupabaseServiceKey(env: Env): string | undefined {
-  return env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_SERVICE_ROL_KEY;
+  return (
+    env.SUPABASE_SERVICE_ROLE_KEY ??
+    env.SUPABASE_SERVICE_ROL_KEY ??
+    env.SUPABASE_ANON_KEY ??
+    env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+  );
 }
 
 function getSupabaseUrl(env: Env): string | undefined {
@@ -135,7 +142,7 @@ async function supabaseInsert<T>(
   const supabaseUrl = getSupabaseUrl(env);
 
   if (!supabaseUrl || !serviceKey) {
-    throw new Error("Supabase service credentials are not configured.");
+    throw new Error("Supabase write credentials are not configured.");
   }
 
   const endpoint = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/${table}${select}`;
@@ -277,8 +284,18 @@ export async function onRequestPost(context: PagesContext): Promise<Response> {
     dedupe_key: dedupeKey || null,
     raw_payload: input,
   };
+  const legacyInquiryRow: Record<string, unknown> = {
+    name: customerName,
+    phone: customerPhone,
+    company: buildingName || companyName,
+    inquiry_type: inquiryTypeLabel,
+    details: JSON.stringify(emailPayload),
+    status: "신규 문의",
+    is_archived: false,
+  };
 
   let inquiryId: number | null = null;
+  let dbFallbackUsed = false;
 
   try {
     const inserted = await supabaseInsert<SupabaseInsertResult>(
@@ -288,23 +305,37 @@ export async function onRequestPost(context: PagesContext): Promise<Response> {
       "?select=id",
     );
     inquiryId = inserted[0]?.id ?? null;
-  } catch (error) {
-    return json(
-      {
-        success: false,
-        error: "접수 저장에 실패했습니다.",
-        detail: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
-    );
+  } catch (primaryError) {
+    try {
+      const inserted = await supabaseInsert<SupabaseInsertResult>(
+        context.env,
+        "inquiries",
+        legacyInquiryRow,
+        "?select=id",
+      );
+      inquiryId = inserted[0]?.id ?? null;
+      dbFallbackUsed = true;
+    } catch (fallbackError) {
+      return json(
+        {
+          success: false,
+          error: "접수 저장에 실패했습니다.",
+          detail: primaryError instanceof Error ? primaryError.message : "Unknown error",
+          fallbackDetail: fallbackError instanceof Error ? fallbackError.message : "Unknown error",
+        },
+        { status: 500 },
+      );
+    }
   }
 
   await supabaseInsert(context.env, "inquiry_events", {
     inquiry_id: inquiryId,
     event_type: "saved_to_db",
     actor_type: "system",
-    message: "문의가 CRM에 저장되었습니다.",
-    metadata: { inquiryTypeCode },
+    message: dbFallbackUsed
+      ? "문의가 CRM 기본 컬럼에 저장되었습니다."
+      : "문의가 CRM에 저장되었습니다.",
+    metadata: { inquiryTypeCode, dbFallbackUsed },
   }).catch(() => undefined);
 
   const emailSent = await sendEmail(context.env, emailPayload);
@@ -321,6 +352,7 @@ export async function onRequestPost(context: PagesContext): Promise<Response> {
     success: true,
     inquiryId,
     emailSent,
+    dbFallbackUsed,
   });
 }
 

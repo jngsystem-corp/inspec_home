@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Send, CheckCircle2, Search, MessageSquare, FileText, HelpCircle } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { EQUIPMENT_DETAILS } from "@/data/equipment-details";
 import Script from "next/script";
 
@@ -225,6 +224,37 @@ async function sendDetailFormEmailFallback(form: DetailForm): Promise<boolean> {
   }
 }
 
+async function sendBasicFormEmailFallback(form: BasicForm): Promise<boolean> {
+  const areaLabel = form.buildingArea
+    ? `${form.buildingArea}㎡ (${getAreaInfo(form.buildingArea)?.range ?? "확인 필요"})`
+    : "미입력";
+
+  const payload = {
+    subject: `[상담신청] ${form.company} — 정보통신설비 성능점검`,
+    from_name: "제이앤지시스템 홈페이지",
+    "신청유형": "상담신청",
+    name: form.name,
+    "회사·건물명": form.company,
+    "연락처": form.phone,
+    email: form.email,
+    "건물 소재지": form.buildingAddress || "미입력",
+    "건물 연면적": areaLabel,
+    "문의 내용": form.message || "없음",
+  };
+
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
+    });
+    const data = (await res.json()) as Web3FormsResponse;
+    return res.ok && data.success === true;
+  } catch {
+    return false;
+  }
+}
+
 /* 공통 유틸: 카카오 주소 검색 */
 function openAddressSearch(onComplete: (full: string) => void) {
   if (typeof window !== "undefined" && window.daum) {
@@ -311,61 +341,31 @@ function BasicContactForm() {
         return;
       }
 
-      const areaLabel = form.buildingArea
-        ? `${form.buildingArea}㎡ (${getAreaInfo(form.buildingArea)?.range ?? "확인 필요"})`
-        : "미입력";
+      const response = await fetch("/api/inquiries", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          inquiryType: "consultation",
+          customerName: form.name,
+          customerPhone: form.phone,
+          customerEmail: form.email,
+          buildingName: form.company,
+          buildingAddress: form.buildingAddress,
+          buildingAreaM2: form.buildingArea,
+          message: form.message,
+          ...getInquiryAttribution("/contact"),
+        }),
+      });
+      const data = (await response.json()) as InquiryApiResponse;
 
-      const payload = {
-        subject:        `[상담신청] ${form.company} — 정보통신설비 성능점검`,
-        from_name:      "제이앤지시스템 홈페이지",
-        "신청유형":     "상담신청",
-        name:           form.name,
-        "회사·건물명":  form.company,
-        "연락처":       form.phone,
-        email:          form.email,
-        "건물 소재지":  form.buildingAddress || "미입력",
-        "건물 연면적":  areaLabel,
-        "문의 내용":    form.message || "없음",
-      };
-
-      let savedToCrm = false;
-      let sentByEmail = false;
-
-      /* 1. Supabase CRM 저장 (환경변수 미설정 시 건너뜀) */
-      if (supabase) {
-        try {
-          const { error: crmError } = await supabase.from("inquiries").insert([{
-            name:         form.name,
-            phone:        form.phone,
-            company:      form.company,
-            inquiry_type: "상담신청",
-            details:      JSON.stringify(payload),
-            status:       "신규 문의",
-          }]);
-          savedToCrm = !crmError;
-        } catch {
-          savedToCrm = false;
+      if (response.ok && data.success) {
+        if (data.emailSent !== true) {
+          await sendBasicFormEmailFallback(form);
         }
-      }
-
-      /* 2. Web3Forms 이메일 발송 */
-      try {
-        const res  = await fetch("https://api.web3forms.com/submit", {
-          method:  "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
-          body:    JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
-        });
-        const data = (await res.json()) as Web3FormsResponse;
-        sentByEmail = data.success === true;
-      } catch {
-        sentByEmail = false;
-      }
-
-      if (savedToCrm || sentByEmail) {
         localStorage.setItem(RATE_LIMIT_BASIC, Date.now().toString());
         setSubmitted(true);
       } else {
-        setError("접수에 실패했습니다. 잠시 후 다시 시도하시거나 02-3444-3570으로 연락해 주세요.");
+        setError(data.error || "접수에 실패했습니다. 잠시 후 다시 시도하시거나 02-3444-3570으로 연락해 주세요.");
       }
     } catch {
       setError("네트워크 오류가 발생했습니다. 잠시 후 다시 시도해 주세요.");
