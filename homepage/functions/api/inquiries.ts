@@ -1,5 +1,6 @@
 type Env = {
   SUPABASE_URL?: string;
+  NEXT_PUBLIC_SUPABASE_URL?: string;
   SUPABASE_SERVICE_ROLE_KEY?: string;
   SUPABASE_SERVICE_ROL_KEY?: string;
   WEB3FORMS_ACCESS_KEY?: string;
@@ -55,6 +56,10 @@ const INQUIRY_TYPE_LABEL: Record<InquiryTypeCode, string> = {
 
 function getSupabaseServiceKey(env: Env): string | undefined {
   return env.SUPABASE_SERVICE_ROLE_KEY ?? env.SUPABASE_SERVICE_ROL_KEY;
+}
+
+function getSupabaseUrl(env: Env): string | undefined {
+  return env.SUPABASE_URL ?? env.NEXT_PUBLIC_SUPABASE_URL;
 }
 
 function getWeb3FormsKey(env: Env): string | undefined {
@@ -127,12 +132,13 @@ async function supabaseInsert<T>(
   select = "",
 ): Promise<T> {
   const serviceKey = getSupabaseServiceKey(env);
+  const supabaseUrl = getSupabaseUrl(env);
 
-  if (!env.SUPABASE_URL || !serviceKey) {
+  if (!supabaseUrl || !serviceKey) {
     throw new Error("Supabase service credentials are not configured.");
   }
 
-  const endpoint = `${env.SUPABASE_URL.replace(/\/$/, "")}/rest/v1/${table}${select}`;
+  const endpoint = `${supabaseUrl.replace(/\/$/, "")}/rest/v1/${table}${select}`;
   const response = await fetch(endpoint, {
     method: "POST",
     headers: {
