@@ -106,6 +106,7 @@ type Web3FormsResponse = {
 
 type InquiryApiResponse = {
   success?: boolean;
+  emailSent?: boolean;
   error?: string;
 };
 
@@ -187,6 +188,41 @@ function toServiceScopeCodes(scope: string[]): string[] {
   if (scope.some((item) => item.includes("유지보수"))) codes.push("maintenance");
   if (scope.some((item) => item.includes("관리자"))) codes.push("manager");
   return codes;
+}
+
+async function sendDetailFormEmailFallback(form: DetailForm): Promise<boolean> {
+  const selectedEquipment = form.equipment.length > 0 ? form.equipment.join(", ") : "미선택";
+  const areaLabel = form.buildingArea
+    ? `${form.buildingArea}㎡ (${getAreaInfo(form.buildingArea)?.range ?? "확인 필요"})`
+    : "미입력";
+
+  const payload = {
+    subject: `[견적서신청] ${form.buildingName || form.name} — 정보통신설비 성능점검`,
+    from_name: "제이앤지시스템 홈페이지",
+    "신청유형": "견적서 바로 신청",
+    name: form.name,
+    "연락처": form.phone,
+    email: form.email,
+    "건물 상호(명칭)": form.buildingName,
+    "건물 소재지": form.buildingAddress,
+    "건물 연면적": areaLabel,
+    "요청 업무 범위": form.serviceScope.length > 0 ? form.serviceScope.join(", ") : "미선택",
+    "점검 대상 설비": selectedEquipment,
+    "선택 설비 수": `${form.equipment.length}개`,
+    "문의 내용": form.message || "없음",
+  };
+
+  try {
+    const res = await fetch("https://api.web3forms.com/submit", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({ access_key: WEB3FORMS_KEY, ...payload }),
+    });
+    const data = (await res.json()) as Web3FormsResponse;
+    return res.ok && data.success === true;
+  } catch {
+    return false;
+  }
 }
 
 /* 공통 유틸: 카카오 주소 검색 */
@@ -581,6 +617,9 @@ function DetailContactForm() {
       const data = (await response.json()) as InquiryApiResponse;
 
       if (response.ok && data.success) {
+        if (data.emailSent !== true) {
+          await sendDetailFormEmailFallback(form);
+        }
         localStorage.setItem(RATE_LIMIT_DETAIL, Date.now().toString());
         setSubmitted(true);
       } else {
